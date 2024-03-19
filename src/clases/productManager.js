@@ -27,33 +27,54 @@ class ProductManager {
             console.error('Error al guardar productos:', error);
         }
     }
+    
 
-    async addProduct(title, description, price, thumbnail, code, stock) {
-        
-        if (!title || !description || !price || !thumbnail || !code || !stock) {
+    async addProduct(product) {
+        // Verificar que se proporciona un objeto producto
+        if (!product || typeof product !== 'object') {
+            console.log("Se requiere un objeto producto.");
+            return;
+        }
+    
+        const { title, description, code, price, status, stock, category, thumbnails } = product;
+    
+        // Verificar que todos los campos obligatorios estén presentes
+        if (!title || !description || !code || !price || !status || !stock || !category) {
             console.log("Todos los campos son obligatorios.");
             return;
         }
-
-        
-        if (this.products.some(product => product.code === code)) {
+    
+        // Verificar si el código de producto ya existe
+        if (this.products.some(existingProduct => existingProduct.code === code)) {
             console.log("El código de producto ya existe.");
             return;
         }
-
-        const product = {
-            id: this.nextId++,
-            title: title,
-            description: description,
-            price: price,
-            thumbnail: thumbnail,
-            code: code,
-            stock: stock
+    
+        // Generar el nuevo ID del producto
+        const id = this.nextId++;
+    
+        // Crear el nuevo producto
+        const newProduct = {
+            id,
+            title,
+            description,
+            code,
+            price,
+            status,
+            stock,
+            category,
+            thumbnails: thumbnails || [],
         };
-        this.products.push(product);
-
+    
+        // Agregar el nuevo producto al array de productos
+        this.products.push(newProduct);
+    
+        // Guardar los productos actualizados
         await this.saveProducts();
+    
+        console.log("Producto agregado correctamente:", newProduct);
     }
+    
 
     async deleteProduct(id) {
         const index = this.products.findIndex(product => product.id === id);
